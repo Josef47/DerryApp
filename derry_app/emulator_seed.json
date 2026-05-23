@@ -1,0 +1,37 @@
+{
+  "version": { "firestore": "rules_version = '2';" },
+  "__comments__": [
+    "Bu dosya doğrudan import edilmez.",
+    "Emulator UI'dan (localhost:4000) veya start.sh scripti ile yüklenir.",
+    "Aşağıdaki veriyi Firestore Emulator'a elle girebilirsin."
+  ],
+  "seed_data": {
+    "oneTimeKeys": {
+      "HM-INIT-LOCAL": {
+        "key": "HM-INIT-LOCAL",
+        "userId": "housemaster_001",
+        "name": "Housemaster",
+        "role": "housemaster",
+        "isHousemaster": true,
+        "used": false
+      }
+    },
+    "settings": {
+      "appSettings": {
+        "houseName": "Bizim Ev",
+        "reminderTime": "08:00",
+        "timezone": "Europe/Amsterdam"
+      }
+    },
+    "shoppingCategories": {
+      "cat_mutfak":   { "name": "Mutfak",   "createdBy": "housemaster_001" },
+      "cat_banyo":    { "name": "Banyo",    "createdBy": "housemaster_001" },
+      "cat_temizlik": { "name": "Temizlik", "createdBy": "housemaster_001" },
+      "cat_diger":    { "name": "Diğer",    "createdBy": "housemaster_001" }
+    },
+    "activityTypes": {
+      "type_book":    { "name": "Kitap: Okunan Sayfa", "unit": "sayfa",  "active": true, "createdBy": "housemaster_001" },
+      "type_prayers": { "name": "Namaz",               "unit": "vakit",  "active": true, "createdBy": "housemaster_001" }
+    }
+  }
+}
