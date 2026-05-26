@@ -111,7 +111,7 @@ class _MyTasksView extends ConsumerWidget {
             ]),
           );
         }
-        final completedIds = completionsAsync.valueOrNull
+        final completedIds = completionsAsync.value
             ?.map((c) => c.taskId).toSet() ?? {};
 
         // Group by type
@@ -169,7 +169,7 @@ class _AllMembersMatrixView extends ConsumerWidget {
             .toSet()
             .toList();
 
-        final completions = weekCompAsync.valueOrNull ?? [];
+        final completions = weekCompAsync.value ?? [];
         final completedSet = {
           for (final c in completions) '${c.taskId}_${c.userId}': true
         };
@@ -237,7 +237,7 @@ class _TaskCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isHM = ref.watch(isHousemasterProvider).valueOrNull ?? false;
+    final isHM = ref.watch(isHousemasterProvider).value ?? false;
 
     return Card(
       child: ListTile(

@@ -27,7 +27,7 @@ class MainShell extends ConsumerWidget {
     final location = GoRouterState.of(context).matchedLocation;
     final currentIndex = _currentIndex(location);
     final isHMAsync = ref.watch(isHousemasterProvider);
-    final isHM = isHMAsync.valueOrNull ?? false;
+    final isHM = isHMAsync.value ?? false;
 
     return Scaffold(
       body: child,

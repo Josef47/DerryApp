@@ -132,7 +132,7 @@ class _ActiveListView extends ConsumerWidget {
           );
         }
 
-        final categories = categoriesAsync.valueOrNull?.map((c) => c.name).toList() ?? [];
+        final categories = categoriesAsync.value?.map((c) => c.name).toList() ?? [];
         final categorized = <String, List<ShoppingItemModel>>{};
         for (final item in items) {
           categorized.putIfAbsent(item.category, () => []).add(item);
@@ -379,7 +379,7 @@ class _AddItemSheetState extends ConsumerState<_AddItemSheet> {
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(shoppingCategoriesProvider);
-    final categories = categoriesAsync.valueOrNull ?? [];
+    final categories = categoriesAsync.value ?? [];
 
     return Container(
       decoration: const BoxDecoration(

@@ -214,7 +214,7 @@ class _EntryTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final usersAsync = ref.watch(allUsersProvider);
-    final userName = usersAsync.valueOrNull
+    final userName = usersAsync.value
         ?.firstWhere((u) => u.id == entry.userId,
             orElse: () => throw Exception())
         .name ?? entry.userId.substring(0, 6);

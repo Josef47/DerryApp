@@ -120,8 +120,8 @@ class _ThisWeekView extends ConsumerWidget {
 
     return logsAsync.when(
       data: (logs) {
-        final types = typesAsync.valueOrNull ?? [];
-        final users = usersAsync.valueOrNull ?? [];
+        final types = typesAsync.value ?? [];
+        final users = usersAsync.value ?? [];
 
         if (logs.isEmpty) {
           return const Center(
@@ -253,7 +253,7 @@ class _HistoryView extends ConsumerWidget {
               child: Text('Henüz aktivite logu yok.',
                   style: TextStyle(color: AppTheme.textSecondary)));
         }
-        final types = typesAsync.valueOrNull ?? [];
+        final types = typesAsync.value ?? [];
 
         // Group by week
         final byWeek = <String, List<ActivityLogModel>>{};
@@ -355,7 +355,7 @@ class _LogActivitySheetState extends ConsumerState<_LogActivitySheet> {
   @override
   Widget build(BuildContext context) {
     final typesAsync = ref.watch(activeTypesProvider);
-    final types = typesAsync.valueOrNull ?? [];
+    final types = typesAsync.value ?? [];
 
     return Container(
       decoration: const BoxDecoration(

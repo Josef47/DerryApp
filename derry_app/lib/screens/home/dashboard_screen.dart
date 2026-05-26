@@ -81,7 +81,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 content: userTasksAsync.when(
                   data: (tasks) {
                     final todayTasks = tasks.where((t) => _isDueToday(t)).toList();
-                    final done = todayCompAsync.valueOrNull
+                    final done = todayCompAsync.value
                         ?.map((c) => c.taskId).toSet() ?? {};
                     final pending = todayTasks.where((t) => !done.contains(t.id)).length;
                     return Text('$pending bekliyor',
@@ -134,7 +134,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     message: 'Bugün için görev yok! 🎉',
                   );
                 }
-                final completedIds = todayCompAsync.valueOrNull
+                final completedIds = todayCompAsync.value
                     ?.map((c) => c.taskId).toSet() ?? {};
                 return Column(
                   children: todayTasks.map((t) => _TaskTile(
