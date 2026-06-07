@@ -61,6 +61,32 @@ class FinanceService {
     );
   }
 
+  Future<void> addFunds({
+    required String userId,
+    required double amount,
+    required String description,
+  }) async {
+    await _db.collection(AppConstants.colFinanceEntries).add({
+      'userId': userId,
+      'amount': amount,
+      'description': description,
+      'isIncome': true,
+      'createdAt': FieldValue.serverTimestamp(),
+      'isDeleted': false,
+    });
+    await _db
+        .collection(AppConstants.colFinanceBalance)
+        .doc(AppConstants.docBalance)
+        .set(
+      {
+        'currentBalance': FieldValue.increment(amount),
+        'lastUpdatedBy': userId,
+        'lastUpdatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+
   Future<void> updateBalance(double newBalance, String userId) async {
     await _db
         .collection(AppConstants.colFinanceBalance)

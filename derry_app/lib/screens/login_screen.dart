@@ -33,6 +33,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final user = await ref.read(authServiceProvider).loginWithKey(key);
       if (user != null && mounted) {
         ref.invalidate(currentUserProvider);
+        ref.invalidate(isLoggedInProvider);
+        ref.invalidate(isHousemasterProvider);
         context.go('/home');
       }
     } catch (e) {

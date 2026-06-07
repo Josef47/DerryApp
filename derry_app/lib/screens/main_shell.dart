@@ -26,8 +26,7 @@ class MainShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).matchedLocation;
     final currentIndex = _currentIndex(location);
-    final isHMAsync = ref.watch(isHousemasterProvider);
-    final isHM = isHMAsync.value ?? false;
+    final isHM = ref.watch(isHousemasterProvider);
 
     return Scaffold(
       body: child,
@@ -80,10 +79,7 @@ class MainShell extends ConsumerWidget {
               title: Text(_tabs[i].label),
               selected: location.startsWith(_tabs[i].path),
               selectedTileColor: const Color(0xFFB7E4C7).withOpacity(0.3),
-              onTap: () {
-                context.pop();
-                context.go(_tabs[i].path);
-              },
+              onTap: () => context.go(_tabs[i].path),
             )),
             const Divider(),
             ListTile(
@@ -91,7 +87,7 @@ class MainShell extends ConsumerWidget {
               title: const Text('Drive Dosyaları'),
               selected: location.startsWith('/drive'),
               selectedTileColor: const Color(0xFFB7E4C7).withOpacity(0.3),
-              onTap: () { context.pop(); context.go('/drive'); },
+              onTap: () => context.go('/drive'),
             ),
             if (isHM)
               ListTile(
@@ -99,7 +95,7 @@ class MainShell extends ConsumerWidget {
                 title: const Text('Ayarlar'),
                 selected: location.startsWith('/settings'),
                 selectedTileColor: const Color(0xFFB7E4C7).withOpacity(0.3),
-                onTap: () { context.pop(); context.go('/settings'); },
+                onTap: () => context.go('/settings'),
               ),
             const Divider(),
             ListTile(

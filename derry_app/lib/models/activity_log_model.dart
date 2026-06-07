@@ -7,7 +7,6 @@ class ActivityLogModel {
   final double value;
   final String weekLabel;
   final String? note;
-  final bool syncedToDrive;
   final DateTime createdAt;
 
   const ActivityLogModel({
@@ -17,7 +16,6 @@ class ActivityLogModel {
     required this.value,
     required this.weekLabel,
     this.note,
-    this.syncedToDrive = false,
     required this.createdAt,
   });
 
@@ -30,7 +28,6 @@ class ActivityLogModel {
       value: (d['value'] ?? 0).toDouble(),
       weekLabel: d['weekLabel'] ?? '',
       note: d['note'],
-      syncedToDrive: d['syncedToDrive'] ?? false,
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -41,7 +38,6 @@ class ActivityLogModel {
         'value': value,
         'weekLabel': weekLabel,
         if (note != null) 'note': note,
-        'syncedToDrive': syncedToDrive,
         'createdAt': Timestamp.fromDate(createdAt),
       };
 }

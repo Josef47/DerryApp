@@ -58,8 +58,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       houseName: v,
                       reminderTime: settings.reminderTime,
                       timezone: settings.timezone,
-                      driveSheetId: settings.driveSheetId,
-                      googleRefreshToken: settings.googleRefreshToken,
                     );
                     await ref.read(settingsServiceProvider).updateSettings(updated);
                   },
@@ -72,8 +70,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       houseName: settings.houseName,
                       reminderTime: settings.reminderTime,
                       timezone: v,
-                      driveSheetId: settings.driveSheetId,
-                      googleRefreshToken: settings.googleRefreshToken,
                     );
                     await ref.read(settingsServiceProvider).updateSettings(updated);
                   },
@@ -95,49 +91,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     houseName: settings.houseName,
                     reminderTime: v,
                     timezone: settings.timezone,
-                    driveSheetId: settings.driveSheetId,
-                    googleRefreshToken: settings.googleRefreshToken,
                   );
                   await ref.read(settingsServiceProvider).updateSettings(updated);
                 },
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Google Drive
-            _SectionCard(
-              title: 'Google Drive',
-              icon: Icons.drive_file_rename_outline_rounded,
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    'Aktivite tablosu için Google Drive spreadsheet ID\'sini girin.',
-                    style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-                  ),
-                ),
-                _EditableTile(
-                  label: 'Spreadsheet ID',
-                  value: settings.driveSheetId ?? '',
-                  hint: 'Google Sheets dosya ID\'si',
-                  onSave: (v) async {
-                    final updated = AppSettingsModel(
-                      houseName: settings.houseName,
-                      reminderTime: settings.reminderTime,
-                      timezone: settings.timezone,
-                      driveSheetId: v.isEmpty ? null : v,
-                      googleRefreshToken: settings.googleRefreshToken,
-                    );
-                    await ref.read(settingsServiceProvider).updateSettings(updated);
-                  },
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Google hesap entegrasyonu için Firebase Cloud Functions'
-                  ' içinde OAuth2 yapılandırması gereklidir.',
-                  style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-                ),
-              ]),
             ),
             const SizedBox(height: 16),
 

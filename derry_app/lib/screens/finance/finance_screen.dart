@@ -18,7 +18,6 @@ class FinanceScreen extends ConsumerStatefulWidget {
 
 class _FinanceScreenState extends ConsumerState<FinanceScreen> {
   String _userId = '';
-  bool _isHM = false;
 
   @override
   void initState() {
@@ -30,7 +29,6 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) setState(() {
       _userId = prefs.getString(AppConstants.prefUserId) ?? '';
-      _isHM = prefs.getBool(AppConstants.prefIsHousemaster) ?? false;
     });
   }
 
@@ -38,6 +36,9 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
   Widget build(BuildContext context) {
     final balanceAsync = ref.watch(balanceProvider);
     final entriesAsync = ref.watch(financeEntriesProvider);
+    final isHM = ref.watch(isHousemasterProvider);
+    final isTreasurer = ref.watch(isTreasurerProvider);
+    final canManage = isHM || isTreasurer;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,7 +48,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
           onPressed: () => Scaffold.of(ctx).openDrawer(),
         )),
         actions: [
-          if (_isHM)
+          if (canManage)
             IconButton(
               icon: const Icon(Icons.edit_rounded),
               tooltip: 'Bakiyeyi Güncelle',
@@ -55,10 +56,27 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/finance/new'),
-        icon: const Icon(Icons.add),
-        label: const Text('Harcama Ekle'),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (canManage) ...[
+            FloatingActionButton.extended(
+              heroTag: 'addFunds',
+              onPressed: () => _showAddFundsDialog(context),
+              backgroundColor: AppTheme.success,
+              icon: const Icon(Icons.add_circle_outline_rounded),
+              label: const Text('Fon Ekle'),
+            ),
+            const SizedBox(height: 12),
+          ],
+          FloatingActionButton.extended(
+            heroTag: 'addExpense',
+            onPressed: () => context.push('/finance/new'),
+            icon: const Icon(Icons.remove_circle_outline_rounded),
+            label: const Text('Harcama Ekle'),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -92,7 +110,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
                   itemCount: entries.length,
                   itemBuilder: (context, i) => _EntryTile(
                     entry: entries[i],
-                    isHM: _isHM,
+                    isHM: isHM,
                     userId: _userId,
                   ),
                 );
@@ -100,6 +118,53 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('Hata: $e')),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddFundsDialog(BuildContext context) {
+    final amountCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Fon Ekle'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: amountCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Miktar (€)',
+                prefixText: '€ ',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: descCtrl,
+              decoration: const InputDecoration(labelText: 'Açıklama'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('İptal')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
+            onPressed: () async {
+              final amount = double.tryParse(amountCtrl.text.replaceAll(',', '.'));
+              if (amount == null || amount <= 0) return;
+              final desc = descCtrl.text.trim().isEmpty ? 'Fon eklendi' : descCtrl.text.trim();
+              await ref.read(financeServiceProvider).addFunds(
+                userId: _userId,
+                amount: amount,
+                description: desc,
+              );
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: const Text('Ekle'),
           ),
         ],
       ),
@@ -219,11 +284,18 @@ class _EntryTile extends ConsumerWidget {
             orElse: () => throw Exception())
         .name ?? entry.userId.substring(0, 6);
 
+    final isIncome = entry.isIncome;
     return Card(
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppTheme.secondary.withOpacity(0.4),
-          child: const Icon(Icons.receipt_rounded, color: AppTheme.primary, size: 20),
+          backgroundColor: isIncome
+              ? AppTheme.success.withOpacity(0.2)
+              : AppTheme.secondary.withOpacity(0.4),
+          child: Icon(
+            isIncome ? Icons.add_circle_outline_rounded : Icons.receipt_rounded,
+            color: isIncome ? AppTheme.success : AppTheme.primary,
+            size: 20,
+          ),
         ),
         title: Text(entry.description, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: Text(
@@ -232,9 +304,11 @@ class _EntryTile extends ConsumerWidget {
         ),
         trailing: Row(mainAxisSize: MainAxisSize.min, children: [
           Text(
-            '− ${AppConstants.formatAmount(entry.amount)}',
-            style: const TextStyle(
-              color: AppTheme.error,
+            isIncome
+                ? '+ ${AppConstants.formatAmount(entry.amount)}'
+                : '− ${AppConstants.formatAmount(entry.amount)}',
+            style: TextStyle(
+              color: isIncome ? AppTheme.success : AppTheme.error,
               fontWeight: FontWeight.bold,
               fontSize: 15,
             ),

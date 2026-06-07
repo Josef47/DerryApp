@@ -48,9 +48,9 @@
     window.addEventListener('load', function(ev) {
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
+        serviceWorker: typeof serviceWorkerVersion !== 'undefined'
+          ? { serviceWorkerVersion: serviceWorkerVersion }
+          : undefined,
         onEntrypointLoaded: function(engineInitializer) {
           engineInitializer.initializeEngine().then(function(appRunner) {
             document.getElementById('loading').style.display = 'none';

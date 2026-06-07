@@ -9,6 +9,7 @@ class FinanceEntryModel {
   final DateTime createdAt;
   final String? deletedBy;
   final bool isDeleted;
+  final bool isIncome;
 
   const FinanceEntryModel({
     required this.id,
@@ -19,6 +20,7 @@ class FinanceEntryModel {
     required this.createdAt,
     this.deletedBy,
     this.isDeleted = false,
+    this.isIncome = false,
   });
 
   factory FinanceEntryModel.fromFirestore(DocumentSnapshot doc) {
@@ -32,6 +34,7 @@ class FinanceEntryModel {
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       deletedBy: d['deletedBy'],
       isDeleted: d['isDeleted'] ?? false,
+      isIncome: d['isIncome'] ?? false,
     );
   }
 

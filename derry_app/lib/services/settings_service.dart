@@ -27,6 +27,10 @@ class SettingsService {
       .snapshots()
       .map((s) => s.docs.map(UserModel.fromFirestore).toList());
 
+  Future<void> setTreasurer(String userId, bool value) async {
+    await _db.collection(AppConstants.colUsers).doc(userId).update({'isTreasurer': value});
+  }
+
   Future<void> deleteUser(String userId) async {
     await _db.collection(AppConstants.colUsers).doc(userId).delete();
   }

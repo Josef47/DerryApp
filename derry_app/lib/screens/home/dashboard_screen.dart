@@ -48,12 +48,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Merhaba, $_userName 👋'),
-        actions: [
-          Builder(builder: (ctx) => IconButton(
-            icon: const Icon(Icons.menu_rounded),
-            onPressed: () => Scaffold.of(ctx).openDrawer(),
-          )),
-        ],
+        leading: Builder(builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu_rounded),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        )),
       ),
       body: RefreshIndicator(
         onRefresh: () async {

@@ -237,7 +237,7 @@ class _TaskCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isHM = ref.watch(isHousemasterProvider).value ?? false;
+    final isHM = ref.watch(isHousemasterProvider);
 
     return Card(
       child: ListTile(

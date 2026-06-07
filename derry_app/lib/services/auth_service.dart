@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
 import '../models/user_model.dart';
@@ -11,16 +12,29 @@ class AuthService {
 
   Future<UserModel?> loginWithKey(String key) async {
     final trimmed = key.trim().toUpperCase();
-    final snap = await _db
-        .collection(AppConstants.colOneTimeKeys)
-        .where('key', isEqualTo: trimmed)
-        .limit(1)
-        .get();
+    debugPrint('🔑 Login attempt: "$trimmed"');
+    debugPrint('🔥 Firestore settings: ${_db.settings}');
 
-    if (snap.docs.isEmpty) throw Exception('Geçersiz davet anahtarı.');
-    final keyDoc = snap.docs.first;
-    final keyData = keyDoc.data();
-    if (keyData['used'] == true) throw Exception('Bu anahtar zaten kullanıldı.');
+    late Map<String, dynamic> keyData;
+    try {
+      final keyDoc = await _db
+          .collection(AppConstants.colOneTimeKeys)
+          .doc(trimmed)
+          .get()
+          .timeout(const Duration(seconds: 10));
+
+      debugPrint('📄 keyDoc.exists: ${keyDoc.exists}');
+      debugPrint('📄 keyDoc.data: ${keyDoc.data()}');
+
+      if (!keyDoc.exists) throw Exception('Geçersiz davet anahtarı.');
+      keyData = keyDoc.data() as Map<String, dynamic>;
+      if (keyData['used'] == true) throw Exception('Bu anahtar zaten kullanıldı.');
+    } on Exception {
+      rethrow;
+    } catch (e) {
+      debugPrint('❌ Firestore hatası: $e');
+      throw Exception('Bağlantı hatası: $e');
+    }
 
     // Anonymous sign-in
     await _auth.signInAnonymously();
@@ -49,7 +63,7 @@ class AuthService {
     }
 
     // Mark key as used
-    await keyDoc.reference.update({'used': true, 'usedAt': FieldValue.serverTimestamp()});
+    await _db.collection(AppConstants.colOneTimeKeys).doc(trimmed).update({'used': true, 'usedAt': FieldValue.serverTimestamp()});
 
     final updatedSnap = await userRef.get();
     final user = UserModel.fromFirestore(updatedSnap);
@@ -59,6 +73,7 @@ class AuthService {
     await prefs.setString(AppConstants.prefUserId, user.id);
     await prefs.setString(AppConstants.prefUserName, user.name);
     await prefs.setBool(AppConstants.prefIsHousemaster, user.isHousemaster);
+    await prefs.setBool(AppConstants.prefIsTreasurer, user.isTreasurer);
 
     return user;
   }
@@ -82,6 +97,7 @@ class AuthService {
     await prefs.remove(AppConstants.prefUserId);
     await prefs.remove(AppConstants.prefUserName);
     await prefs.remove(AppConstants.prefIsHousemaster);
+    await prefs.remove(AppConstants.prefIsTreasurer);
   }
 
   // Housemaster creates a new invite key

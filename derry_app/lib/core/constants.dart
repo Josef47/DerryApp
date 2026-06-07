@@ -24,6 +24,7 @@ class AppConstants {
   static const String prefUserId = 'userId';
   static const String prefUserName = 'userName';
   static const String prefIsHousemaster = 'isHousemaster';
+  static const String prefIsTreasurer = 'isTreasurer';
 
   // Roles
   static const String roleHousemaster = 'housemaster';

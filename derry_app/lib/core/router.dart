@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../providers/auth_provider.dart';
 import '../screens/login_screen.dart';
 import '../screens/main_shell.dart';
 import '../screens/home/dashboard_screen.dart';
@@ -20,10 +20,8 @@ import '../screens/settings/user_management_screen.dart';
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/login',
-    redirect: (context, state) async {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
-      final isLoggedIn = userId != null && userId.isNotEmpty;
+    redirect: (context, state) {
+      final isLoggedIn = ref.read(isLoggedInProvider);
       final isLoginRoute = state.matchedLocation == '/login';
 
       if (!isLoggedIn && !isLoginRoute) return '/login';

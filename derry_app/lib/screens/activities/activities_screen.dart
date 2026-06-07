@@ -224,10 +224,6 @@ class _UserActivityCard extends StatelessWidget {
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, color: AppTheme.primary),
                 ),
-                if (log.syncedToDrive) ...[
-                  const SizedBox(width: 4),
-                  const Icon(Icons.cloud_done_rounded, size: 14, color: Colors.teal),
-                ],
               ]),
             );
           }),
@@ -275,14 +271,8 @@ class _HistoryView extends ConsumerWidget {
                   dense: true,
                   leading: const Icon(Icons.arrow_right_rounded, color: AppTheme.primary),
                   title: Text(type?.name ?? 'Aktivite'),
-                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Text('${log.value.toStringAsFixed(0)} ${type?.unit ?? ''}',
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    if (log.syncedToDrive) ...[
-                      const SizedBox(width: 4),
-                      const Icon(Icons.cloud_done_rounded, size: 14, color: Colors.teal),
-                    ],
-                  ]),
+                  trailing: Text('${log.value.toStringAsFixed(0)} ${type?.unit ?? ''}',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: log.note != null
                       ? Text(log.note!, style: const TextStyle(fontSize: 11))
                       : null,

@@ -5,6 +5,7 @@ class UserModel {
   final String name;
   final String role;
   final bool isHousemaster;
+  final bool isTreasurer;
   final String? fcmToken;
   final DateTime createdAt;
 
@@ -13,6 +14,7 @@ class UserModel {
     required this.name,
     required this.role,
     required this.isHousemaster,
+    this.isTreasurer = false,
     this.fcmToken,
     required this.createdAt,
   });
@@ -24,6 +26,7 @@ class UserModel {
       name: d['name'] ?? '',
       role: d['role'] ?? 'member',
       isHousemaster: d['isHousemaster'] ?? false,
+      isTreasurer: d['isTreasurer'] ?? false,
       fcmToken: d['fcmToken'],
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
@@ -33,6 +36,7 @@ class UserModel {
         'name': name,
         'role': role,
         'isHousemaster': isHousemaster,
+        'isTreasurer': isTreasurer,
         if (fcmToken != null) 'fcmToken': fcmToken,
         'createdAt': Timestamp.fromDate(createdAt),
       };

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -345,17 +346,12 @@ class _AddItemSheetState extends ConsumerState<_AddItemSheet> {
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
-    if (_category == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kategori seçin.')));
-      return;
-    }
     setState(() => _loading = true);
     try {
       final item = ShoppingItemModel(
         id: '',
         title: _titleCtrl.text.trim(),
-        category: _category!,
+        category: _category ?? 'Diğer',
         description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
         urgency: _urgency,
         deadline: _deadline,
@@ -374,6 +370,105 @@ class _AddItemSheetState extends ConsumerState<_AddItemSheet> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  void _showCategoryPicker(BuildContext context, List categories) {
+    final options = [...categories.map((c) => c.name as String), 'Yeni Kategori'];
+    int selectedIndex = _category != null
+        ? options.indexOf(_category!)
+        : 0;
+    if (selectedIndex < 0) selectedIndex = 0;
+    final controller = FixedExtentScrollController(initialItem: selectedIndex);
+    final newCatCtrl = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setS) {
+          final isNewCat = selectedIndex == options.length - 1;
+          return Column(mainAxisSize: MainAxisSize.min, children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('İptal'),
+                  ),
+                  const Text('Kategori Seç',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  TextButton(
+                    onPressed: () async {
+                      if (isNewCat) {
+                        final name = newCatCtrl.text.trim();
+                        if (name.isNotEmpty) {
+                          await ref.read(shoppingServiceProvider)
+                              .addCategory(name, widget.userId);
+                          setState(() => _category = name);
+                        }
+                      } else {
+                        setState(() => _category = options[selectedIndex]);
+                      }
+                      if (ctx.mounted) Navigator.pop(ctx);
+                    },
+                    child: const Text('Tamam',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 200,
+              child: CupertinoPicker(
+                scrollController: controller,
+                itemExtent: 44,
+                onSelectedItemChanged: (i) => setS(() => selectedIndex = i),
+                children: options.map((o) => Center(
+                  child: Text(
+                    o,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: o == 'Yeni Kategori'
+                          ? AppTheme.primary
+                          : Colors.black87,
+                      fontWeight: o == 'Yeni Kategori'
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                )).toList(),
+              ),
+            ),
+            if (isNewCat)
+              Padding(
+                padding: EdgeInsets.only(
+                  left: 24, right: 24, bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+                ),
+                child: TextField(
+                  controller: newCatCtrl,
+                  autofocus: true,
+                  decoration: const InputDecoration(labelText: 'Kategori adı'),
+                ),
+              )
+            else
+              const SizedBox(height: 24),
+          ]);
+        },
+      ),
+    );
   }
 
   @override
@@ -416,12 +511,26 @@ class _AddItemSheetState extends ConsumerState<_AddItemSheet> {
             ),
             const SizedBox(height: 12),
 
-            DropdownButtonFormField<String>(
-              value: _category,
-              decoration: const InputDecoration(labelText: 'Kategori *'),
-              items: categories.map((c) => DropdownMenuItem(
-                value: c.name, child: Text(c.name))).toList(),
-              onChanged: (v) => setState(() => _category = v),
+            // Category picker row
+            InkWell(
+              onTap: () => _showCategoryPicker(context, categories),
+              borderRadius: BorderRadius.circular(8),
+              child: InputDecorator(
+                decoration: const InputDecoration(labelText: 'Kategori (opsiyonel)'),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _category ?? 'Seç...',
+                      style: TextStyle(
+                        color: _category != null ? Colors.black87 : AppTheme.textSecondary,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const Icon(Icons.expand_more_rounded, color: AppTheme.textSecondary),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 12),
 
@@ -445,18 +554,33 @@ class _AddItemSheetState extends ConsumerState<_AddItemSheet> {
               const Text('Aciliyet: ',
                   style: TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(width: 8),
-              ...['Low', 'Medium', 'High'].map((u) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: ChoiceChip(
-                  label: Text(switch (u) {
-                    'Low' => 'Düşük',
-                    'Medium' => 'Orta',
-                    _ => 'Yüksek',
-                  }),
-                  selected: _urgency == u,
-                  onSelected: (_) => setState(() => _urgency = u),
-                ),
-              )),
+              ...['Low', 'Medium', 'High'].map((u) {
+                final selected = _urgency == u;
+                final chipColor = switch (u) {
+                  'Medium' => Colors.amber,
+                  'High' => AppTheme.error,
+                  _ => AppTheme.textSecondary,
+                };
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(
+                      switch (u) {
+                        'Low' => 'Düşük',
+                        'Medium' => 'Orta',
+                        _ => 'Yüksek',
+                      },
+                      style: TextStyle(
+                        color: selected ? Colors.white : chipColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    selected: selected,
+                    selectedColor: chipColor,
+                    onSelected: (_) => setState(() => _urgency = u),
+                  ),
+                );
+              }),
             ]),
             const SizedBox(height: 12),
 

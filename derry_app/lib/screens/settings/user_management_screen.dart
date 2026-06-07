@@ -194,20 +194,57 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                         ),
                       ),
                     ),
+                    if (user.isTreasurer) ...[
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Kasiyer',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.amber,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ]),
                   trailing: user.id != _userId
                       ? PopupMenuButton<String>(
                           icon: const Icon(Icons.more_vert_rounded),
                           onSelected: (action) async {
-                            if (action == 'delete') {
+                            if (action == 'treasurer') {
+                              await ref.read(settingsServiceProvider)
+                                  .setTreasurer(user.id, !user.isTreasurer);
+                            } else if (action == 'delete') {
                               final confirm = await _confirmDelete(context, user.name);
                               if (confirm == true) {
                                 await ref.read(settingsServiceProvider).deleteUser(user.id);
                               }
                             }
                           },
-                          itemBuilder: (_) => const [
+                          itemBuilder: (_) => [
                             PopupMenuItem(
+                              value: 'treasurer',
+                              child: Row(children: [
+                                Icon(
+                                  user.isTreasurer
+                                      ? Icons.remove_circle_outline_rounded
+                                      : Icons.account_balance_wallet_rounded,
+                                  size: 18,
+                                  color: Colors.amber,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(user.isTreasurer
+                                    ? 'Kasiyer Yetkisini Kaldır'
+                                    : 'Kasiyer Yap'),
+                              ]),
+                            ),
+                            const PopupMenuItem(
                               value: 'delete',
                               child: Text('Kullanıcıyı Sil',
                                   style: TextStyle(color: Colors.red)),
