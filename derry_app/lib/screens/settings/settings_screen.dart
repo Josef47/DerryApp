@@ -54,24 +54,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   label: 'Ev Adı',
                   value: settings.houseName,
                   onSave: (v) async {
-                    final updated = AppSettingsModel(
-                      houseName: v,
-                      reminderTime: settings.reminderTime,
-                      timezone: settings.timezone,
-                    );
-                    await ref.read(settingsServiceProvider).updateSettings(updated);
+                    await ref.read(settingsServiceProvider)
+                        .updateSettings(settings.copyWith(houseName: v));
                   },
                 ),
                 _EditableTile(
                   label: 'Saat Dilimi',
                   value: settings.timezone,
                   onSave: (v) async {
-                    final updated = AppSettingsModel(
-                      houseName: settings.houseName,
-                      reminderTime: settings.reminderTime,
-                      timezone: v,
-                    );
-                    await ref.read(settingsServiceProvider).updateSettings(updated);
+                    await ref.read(settingsServiceProvider)
+                        .updateSettings(settings.copyWith(timezone: v));
                   },
                 ),
               ]),
@@ -87,11 +79,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 value: settings.reminderTime,
                 hint: 'ÖR: 08:00',
                 onSave: (v) async {
-                  final updated = AppSettingsModel(
-                    houseName: settings.houseName,
-                    reminderTime: v,
-                    timezone: settings.timezone,
-                  );
+                  final updated = settings.copyWith(reminderTime: v);
+                  await ref.read(settingsServiceProvider).updateSettings(updated);
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Duty settings
+            _SectionCard(
+              title: 'Nöbet Ayarları',
+              icon: Icons.cleaning_services_rounded,
+              child: _DutyDayTile(
+                currentDay: settings.dutyDayOfWeek,
+                onChanged: (day) async {
+                  final updated = settings.copyWith(dutyDayOfWeek: day);
                   await ref.read(settingsServiceProvider).updateSettings(updated);
                 },
               ),
@@ -256,5 +258,49 @@ class _EditableTileState extends State<_EditableTile> {
         ),
       ],
     ]);
+  }
+}
+
+class _DutyDayTile extends StatelessWidget {
+  final int currentDay;
+  final ValueChanged<int> onChanged;
+
+  const _DutyDayTile({required this.currentDay, required this.onChanged});
+
+  static const _days = [
+    (1, 'Pazartesi'),
+    (2, 'Salı'),
+    (3, 'Çarşamba'),
+    (4, 'Perşembe'),
+    (5, 'Cuma'),
+    (6, 'Cumartesi'),
+    (7, 'Pazar'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: const Text('Nöbet Günü',
+          style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+      subtitle: DropdownButton<int>(
+        value: currentDay,
+        isExpanded: true,
+        underline: const SizedBox(),
+        style: const TextStyle(
+            fontSize: 15,
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.w500),
+        items: _days
+            .map((d) => DropdownMenuItem(
+                  value: d.$1,
+                  child: Text(d.$2),
+                ))
+            .toList(),
+        onChanged: (v) {
+          if (v != null) onChanged(v);
+        },
+      ),
+    );
   }
 }

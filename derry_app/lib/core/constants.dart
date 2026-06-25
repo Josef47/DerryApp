@@ -15,6 +15,8 @@ class AppConstants {
   static const String colLoyaltyCards = 'loyaltyCards';
   static const String colDriveLinks = 'driveLinks';
   static const String colSettings = 'settings';
+  static const String colDutyZones = 'dutyZones';
+  static const String colDutyAssignments = 'dutyAssignments';
 
   // Singleton doc IDs
   static const String docBalance = 'balance';

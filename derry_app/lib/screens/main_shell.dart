@@ -83,6 +83,16 @@ class MainShell extends ConsumerWidget {
             )),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.cleaning_services_rounded),
+              title: const Text('Nöbet'),
+              selected: location.startsWith('/duty'),
+              selectedTileColor: const Color(0xFFB7E4C7).withOpacity(0.3),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/duty');
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.folder_open_rounded),
               title: const Text('Drive Dosyaları'),
               selected: location.startsWith('/drive'),

@@ -75,7 +75,20 @@ Future<void> _seedEmulator() async {
         'houseName': 'Bizim Ev',
         'reminderTime': '08:00',
         'timezone': 'Europe/Amsterdam',
+        'dutyDayOfWeek': 3,
       });
+      for (final zone in [
+        {'name': 'Mutfak', 'iconName': 'kitchen', 'order': 0},
+        {'name': 'Banyo & Tuvalet', 'iconName': 'bathroom', 'order': 1},
+        {'name': 'Salon', 'iconName': 'living', 'order': 2},
+        {'name': '3. Kat', 'iconName': 'stairs', 'order': 3},
+      ]) {
+        await db.collection('dutyZones').add({
+          ...zone,
+          'miniTasks': <Map<String, dynamic>>[],
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
       for (final entry in {
         'cat_mutfak': 'Mutfak',
         'cat_banyo': 'Banyo',

@@ -16,6 +16,8 @@ import '../screens/shopping/loyalty_cards_screen.dart';
 import '../screens/drive/drive_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/settings/user_management_screen.dart';
+import '../screens/duty/duty_screen.dart';
+import '../screens/duty/duty_zone_detail_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -77,6 +79,18 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'loyalty-cards',
                 builder: (context, state) => const LoyaltyCardsScreen(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/duty',
+            builder: (context, state) => const DutyScreen(),
+            routes: [
+              GoRoute(
+                path: ':zoneId',
+                builder: (context, state) => DutyZoneDetailScreen(
+                  zoneId: state.pathParameters['zoneId']!,
+                ),
               ),
             ],
           ),
